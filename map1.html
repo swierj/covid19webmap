@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Covid-19 Cases in the US</title>
+    <title>Covid-19 Rates in the US</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.8.1/mapbox-gl.css" rel="stylesheet">
@@ -15,10 +15,18 @@
     <div id="map"></div>
     <div id="legend"></div>
     <div id="title">
-        Covid-19 Case Counts by County in the US
+        Covid-19 Rates by County in the US
     </div>
     <div id="subtitle">
-        December 2020
+        December 2020, Sources: <a href="https://data.census.gov/cedsci/table?g=0100000US%24050000&d=ACS%205-Year%20Estimates%20Data%20Profiles&tid=ACSDP5Y2018.DP05&hidePreview=true">ACS</a> and <a href="https://github.com/nytimes/covid-19-data/blob/43d32dde2f87bd4dafbb7d23f5d9e878124018b8/live/us-counties.csv">NY Times</a>
+    </div>
+    <div class='map-overlay' id='features'>
+        <div id='text-description'>
+            <p>Hover over a state!</p>
+        </div>
+    </div>
+    <div class='summary'>
+        This is an interactive choropleth webmap showcasing Covid-19 rates by county. Rates are calculated using Covid-19 case data from the NY Times and ACS population data (sources found in subtitle) to measure the number of Covid-19 cases per 1,000 people in each county. As seen on the map, most of the US county Covid-19 rates fall between 50-100 cases per 1,000 people.
     </div>
     <script src="js/map1.js"></script>
 

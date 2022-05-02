@@ -1,99 +1,100 @@
-mapboxgl.accessToken =
-'pk.eyJ1IjoiamFrb2J6aGFvIiwiYSI6ImNpcms2YWsyMzAwMmtmbG5icTFxZ3ZkdncifQ.P9MBej1xacybKcDN_jehvw';
-let map = new mapboxgl.Map({
-container: 'map', // container ID
-style: 'mapbox://styles/mapbox/light-v10',
-zoom: 4, // starting zoom
-center: [-100, 40] // starting center
+mapboxgl.accessToken = 'pk.eyJ1IjoiamFrb2J6aGFvIiwiYSI6ImNpcms2YWsyMzAwMmtmbG5icTFxZ3ZkdncifQ.P9MBej1xacybKcDN_jehvw';
+const map = new mapboxgl.Map({
+    container: 'map', // container ID
+    style: 'mapbox://styles/mapbox/light-v10',
+    zoom: 4, // starting zoom
+    center: [-100, 40], // starting center
+    projection: 'albers' // projection type
 });
 
-const grades = [4, 5, 6],
-colors = ['rgb(208,209,230)', 'rgb(103,169,207)', 'rgb(1,108,89)'],
-radii = [5, 15, 20];
+// fetch and store the json data
+async function geojsonFetch() { 
 
-//load data to the map as new layers.
-//map.on('load', function loadingData() {
-map.on('load', () => { //simplifying the function statement: arrow with brackets to define a function
-
-// when loading a geojson, there are two steps
-// add a source of the data and then add the layer out of the source
-map.addSource('earthquakes', {
-    type: 'geojson',
-    data: 'assets/earthquakes.geojson'
-});
-
-map.addLayer({
-        'id': 'us-covid-2020-counts-point',
-        'type': 'circle',
-        'source': 'us-covid-2020-counts',
-        'minzoom': 5,
-        'paint': {
-            // increase the radii of the circle as the zoom level and dbh value increases
-            'circle-radius': {
-                'property': 'mag',
-                'stops': [
-                    [{
-                        zoom: 5,
-                        value: grades[0]
-                    }, radii[0]],
-                    [{
-                        zoom: 5,
-                        value: grades[1]
-                    }, radii[1]],
-                    [{
-                        zoom: 5,
-                        value: grades[2]
-                    }, radii[2]]
-                ]
-            },
-            'circle-color': {
-                'property': 'mag',
-                'stops': [
-                    [grades[0], colors[0]],
-                    [grades[1], colors[1]],
-                    [grades[2], colors[2]]
-                ]
-            },
-            'circle-stroke-color': 'white',
-            'circle-stroke-width': 1,
-            'circle-opacity': 0.6
-        }
-    },
-    'waterway-label'
-);
+    let response = await fetch('assets/us-covid-2020-rates.json');
+    let rates = await response.json();
 
 
-// click on tree to view magnitude in a popup
-map.on('click', 'earthquakes-point', (event) => {
-    new mapboxgl.Popup()
-        .setLngLat(event.features[0].geometry.coordinates)
-        .setHTML(`<strong>Magnitude:</strong> ${event.features[0].properties.mag}`)
-        .addTo(map);
-});
+    const layers = [
+        '0-9',
+        '10-29',
+        '30-49',
+        '50-99',
+        '100-179',
+        '180-299'
+    ];
+    const colors = [
+        '#ffffcc',
+        '#c7e9b4',
+        '#7fcdbb',
+        '#41b6c4',
+        '#2c7fb8',
+        '#253494'
+    ];
 
-});
+    //load data to the map as new layers.
+    map.on('load', () => {
 
+        // adding data source
+        map.addSource('rates', {
+            type: 'geojson',
+            data: rates
+        });
 
+        // add the webmap layer
+        map.addLayer({
+            'id': 'us-covid-2020-rates-layer',
+            'type': 'fill',
+            'source': 'rates',
+            'minzoom': 3,
+            'paint': {
+                'fill-color': [
+                    'step',
+                    ['get', 'rates'],
+                    '#ffffcc',   // stop_output_0
+                    10,          // stop_input_0
+                    '#c7e9b4',   // stop_output_1
+                    30,          // stop_input_1
+                    '#7fcdbb',   // stop_output_2
+                    50,          // stop_input_2
+                    '#41b6c4',   // stop_output_3
+                    100,         // stop_input_3
+                    '#2c7fb8',   // stop_output_4
+                    180,         // stop_input_4
+                    '#253494'  // stop_output_7
+                ],
+                'fill-outline-color': '#BBBBBB',
+                'fill-opacity': 0.7,
+            }
+        });
 
-// create legend
-const legend = document.getElementById('legend');
+        // interactive mouse hover feature. displays in the top right corner of webmap
+        map.on('mousemove', ({point}) => {
+            const rate = map.queryRenderedFeatures(point, {
+                layers: ['us-covid-2020-rates-layer']
+            });
+            document.getElementById('text-description').innerHTML = rate.length ?
+                `<h3>${rate[0].properties.county} County</h3><p><strong><em>${rate[0].properties.rates}</strong> Covid-19 cases per 1,000 people</em></p>` :
+                `<p>Hover over a county!</p>`;
+        });
+    });
 
-//set up legend grades and labels
-var labels = ['<strong>Magnitude</strong>'], vbreak;
-//iterate through grades and create a scaled circle and label for each
-for (var i = 0; i < grades.length; i++) {
-vbreak = grades[i];
-// you need to manually adjust the radius of each dot on the legend 
-// in order to make sure the legend can be properly referred to the dot on the map.
-dot_radii = 2 * radii[i];
-labels.push(
-    '<p class="break"><i class="dot" style="background:' + colors[i] + '; width: ' + dot_radii +
-    'px; height: ' +
-    dot_radii + 'px; "></i> <span class="dot-label" style="top: ' + dot_radii / 2 + 'px;">' + vbreak +
-    '</span></p>');
+    // create legend
+    const legend = document.getElementById('legend');
+    legend.innerHTML = "<b>Covid-19 Rates<br>(Cases per 1,000 people)<br>";
 
-}
-const source =
-'<p style="text-align: right; font-size:10pt">Source: <a href="https://earthquake.usgs.gov/earthquakes/">USGS</a></p>';
+    layers.forEach((layer, i) => {
+        const color = colors[i];
+        const item = document.createElement('div');
+        const key = document.createElement('span');
+        key.className = 'legend-key';
+        key.style.backgroundColor = color;
 
-legend.innerHTML = labels.join('') + source;
+        const value = document.createElement('span');
+        value.innerHTML = `${layer}`;
+        item.appendChild(key);
+        item.appendChild(value);
+        legend.appendChild(item);
+    });
+};
+
+geojsonFetch();

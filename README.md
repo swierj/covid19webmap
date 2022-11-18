@@ -3,6 +3,11 @@
 ## Introduction
 This is a project for GEOG458. The goal of this project was to create two interactive webmaps of the United States, one with proportional symbols and another with choropleth visualizations visualizing data on Covid-19. The Covid-19 data in this project was used from the [NY Times](https://github.com/nytimes/covid-19-data/blob/43d32dde2f87bd4dafbb7d23f5d9e878124018b8/live/us-counties.csv) which has last been updated in December 2020. The population data for the first map is from the [ACS](https://data.census.gov/cedsci/table?g=0100000US%24050000&d=ACS%205-Year%20Estimates%20Data%20Profiles&tid=ACSDP5Y2018.DP05&hidePreview=true). 
 
+## Map Links
+[Map 1 for Covid-19 Rates](https://swierj.github.io/covid19webmap/map1.html)
+
+[Map 2 for Covid-19 Counts](https://swierj.github.io/covid19webmap/map2.html)
+
 ## Map Screenshots
 The first [webmap](https://swierj.github.io/covid19webmap/map1.html), is a choropleth map highlighting Covid-19 rates across the US by county. The following is a screenshot:
 ![choropleth map of covid-19 rates](img/map1.JPG)
